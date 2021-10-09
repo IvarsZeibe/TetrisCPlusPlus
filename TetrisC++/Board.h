@@ -1,22 +1,35 @@
 #pragma once
 #include <vector>
+#include "TetrominoShape.h"
+#include <SFML\Graphics.hpp>
+#include "Tile.h"
 class Board
 {
 public:
 	Board(int width, int height);
-	void Update();
-	int TileAt(int x, int y);
-	void SetTile(int x, int y, int value);
+	void Update(float deltaTime);
+	Tile TileAt(int x, int y);
+	void TryAddTetromino(TetrominoShape tetramino);
 	int GetWidth() {
-		return width;
+		return board[0].size();
 	}
 	int GetHeight() {
-		return height;
+		return board.size();
 	}
+	void Rotate(bool left);
+	bool Move(int xOffset, int yOffset);
+	void StopFalling();
 private:
-	std::vector<std::vector<int>> board;
-	int width;
-	int height;
-	//int board[20][10];
+	sf::Color GetRandomColor();
+	TetrominoShape GetRandomShape();
+	std::vector<std::vector<Tile>> board;
+	bool isTetrominoFalling = false;
+	void RemoveFullLines();
+
+	std::pair<int, int> tetrominoPosition;
+	TetrominoShape tetrominoShape = TetrominoShape::NONE;
+	sf::Color tetrominoColor;
+	bool CanPlaceTetromino(int xPos, int yPos, TetrominoShape tetromino);
+	void RemoveFallingTetromino();
 };
 

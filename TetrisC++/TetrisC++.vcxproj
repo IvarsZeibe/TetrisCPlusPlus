@@ -146,12 +146,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="TetrisShape.cpp" />
+    <ClCompile Include="TetrominoShape.cpp" />
+    <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="TetrisShape.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="TetrominoShape.h" />
+    <ClInclude Include="Tile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
