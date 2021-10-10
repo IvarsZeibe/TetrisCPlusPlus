@@ -1,37 +1,20 @@
 #include <SFML/Graphics.hpp>
 #include "Board.h"
 #include <chrono>
+#include "UI.h"
+
+Board board(10, 20);
 
 int main() {
 	const int WINDOW_WIDTH = 450;
 	const int WINDOW_HEIGHT = 800;
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
-
-	Board board(10, 20);
-	/*board.SetTile(0, 0, 2);
-	board.SetTile(5, 4, 2);
-	board.SetTile(5, 6, 2);
-	board.SetTile(0, 7, 2);
-	board.SetTile(1, 7, 2);
-	board.SetTile(2, 7, 2);
-	board.SetTile(3, 7, 2);
-	board.SetTile(4, 7, 2);
-	board.SetTile(5, 7, 2);
-	board.SetTile(6, 7, 2);
-	board.SetTile(7, 7, 2);
-	board.SetTile(8, 7, 2);
-	board.SetTile(9, 7, 2);
-	board.SetTile(5, 7, 2);
-	board.SetTile(5, 19, 1);*/
+	UI ui = UI(board);
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	int updateRate = 500;
 	while (window.isOpen())
 	{
-		TetrominoShape test = TetrominoShape::T;
-		test.Rotate(true);
-		test.Rotate(true);
-		test.Rotate(false);
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
@@ -77,6 +60,7 @@ int main() {
 				window.draw(square);
 			}
 		}
+		ui.Draw(window);
 		window.display();
 
 	}

@@ -9,7 +9,6 @@
 Board::Board(int width, int height)
 {
     board.resize(height, std::vector<Tile>(width, Tile()));
-    tetrominoColor = GetRandomColor();
 }
 
 void Board::Update(float deltaTime)
@@ -30,6 +29,7 @@ Tile Board::TileAt(int x, int y)
 void Board::TryAddTetromino(TetrominoShape tetromino)
 {
     if (!isTetrominoFalling) {
+        tetrominoColor = GetRandomColor();
         int tetrominoHeight = tetromino.tilePositions.size();
         int tetrominoWidth = tetromino.tilePositions[0].size();
         int xOffset = (GetWidth() - tetrominoWidth) / 2;
@@ -47,7 +47,6 @@ void Board::TryAddTetromino(TetrominoShape tetromino)
                 }
             }
         }
-        tetrominoColor = GetRandomColor();
         isTetrominoFalling = true;
 
     }
@@ -103,6 +102,7 @@ void Board::StopFalling()
             }
             if (tetrominoShape.tilePositions[y][x] == 1) {
                 board[y + tetrominoPosition.second][x + tetrominoPosition.first].type = TileType::Frozen;
+                score += 2;
             }
         }
     }
@@ -111,6 +111,7 @@ void Board::RemoveFullLines() {
     int linesRemoved = 0;
     for (int y = GetHeight() - 1 - linesRemoved; y >= 0; y--) {
         bool unfullRowFound = false;
+        int rowsRemovedInARow = 0;
         while (!unfullRowFound) {
             int rowFullness = 0;
             for (int x = 0; x < GetWidth(); x++) {
@@ -124,6 +125,8 @@ void Board::RemoveFullLines() {
             }
             if (rowFullness == GetWidth()) {
                 linesRemoved++;
+                rowsRemovedInARow++;
+                score += 100 * rowsRemovedInARow;
             }
             if (y - linesRemoved < 0) {
                 board[y] = std::vector<Tile>(GetWidth(), Tile::Empty);

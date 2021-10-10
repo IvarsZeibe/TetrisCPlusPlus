@@ -6,6 +6,7 @@
 class Board
 {
 public:
+	Board() {};
 	Board(int width, int height);
 	void Update(float deltaTime);
 	Tile TileAt(int x, int y);
@@ -19,6 +20,7 @@ public:
 	void Rotate(bool left);
 	bool Move(int xOffset, int yOffset);
 	void StopFalling();
+	int score = 0;
 private:
 	sf::Color GetRandomColor();
 	TetrominoShape GetRandomShape();
