@@ -4,17 +4,21 @@
 #include "UI.h"
 
 Board board(10, 20);
+double timePerUpdate = 500;
+std::chrono::steady_clock::time_point gameStartTime;
+std::chrono::steady_clock::time_point lastUpdateTime;
+const int WINDOW_WIDTH = 450;
+const int WINDOW_HEIGHT = 600;
 
 int main() {
-	const int WINDOW_WIDTH = 450;
-	const int WINDOW_HEIGHT = 800;
+	gameStartTime = std::chrono::steady_clock::now();
+	lastUpdateTime = gameStartTime;
+	UI ui(board);
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
-	UI ui = UI(board);
-
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	int updateRate = 500;
+	
 	while (window.isOpen())
 	{
+		// Processes events
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
@@ -34,35 +38,45 @@ int main() {
 					board.Move(1, 0);
 				}
 				else if (event.key.code == sf::Keyboard::S) {
-					updateRate = 100;
+					board.SetFastFallSpeed();
+				}
+				else if (event.key.code == sf::Keyboard::Space) {
+					board.FullFall();
+				}
+				else if (event.key.code == sf::Keyboard::P) {
+					if (board.isPaused) {
+						board.Unpause();
+					}
+					else {
+						board.Pause();
+					}
 				}
 			}
 			else if (event.type == sf::Event::KeyReleased) {
 				if (event.key.code == sf::Keyboard::S) {
-					updateRate = 500;
+					board.SetNormalFallSpeed();
 				}
 			}
 		}
 
-		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		float timespan = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		if (timespan > updateRate) {
-			board.Update(timespan);
-			begin = std::chrono::steady_clock::now();
-		}
+		// Update
+		double deltaTime = (std::chrono::steady_clock::now() - lastUpdateTime) / std::chrono::milliseconds(1);
+		board.Update(deltaTime);
+		lastUpdateTime = std::chrono::steady_clock::now();
+
+		// Draw
 		window.clear(sf::Color::White);
 		for (int y = 0; y < board.GetHeight(); y++) {
 			for (int x = 0; x < board.GetWidth(); x++)
 			{
-				sf::RectangleShape square(sf::Vector2f(20, 20));
+				sf::RectangleShape square(sf::Vector2f(30, 30));
 				square.setFillColor(board.TileAt(x, y).color);
-				square.setPosition(sf::Vector2f(20 * x, 20 * y));
+				square.setPosition(sf::Vector2f(30 * x, 30 * y));
 				window.draw(square);
 			}
 		}
 		ui.Draw(window);
 		window.display();
-
 	}
 	return 0;
 }

@@ -11,14 +11,52 @@ Board::Board(int width, int height)
     board.resize(height, std::vector<Tile>(width, Tile()));
 }
 
+void Board::FullFall() {
+    if (!isTetrominoFalling) {
+        return;
+    }
+    while (true) {
+        if (!Move(0, 1)) {
+            StopFalling();
+            timeSinceFall = fallCooldown - 100;
+            break;
+        }
+    }
+}
+
+void Board::SetNormalFallSpeed()
+{
+    fallCooldown = 100 + 400 / GetLevel();
+}
+void Board::SetFastFallSpeed()
+{
+    fallCooldown = 100;
+}
+
+int Board::GetLevel()
+{
+    int level = (totalLinesCleared / 2) + 1;
+    if (level > 10) {
+        level = 10;
+    }
+    return level;
+}
+
 void Board::Update(float deltaTime)
 {
-    //Fall();
-    if (isTetrominoFalling && !Move(0, 1)) {
-        StopFalling();
+    if (isGameOver || isPaused) {
+        return;
     }
-    RemoveFullLines();
-    TryAddTetromino(GetRandomShape());
+    gameTime += deltaTime;
+    timeSinceFall += deltaTime;
+    if(timeSinceFall > fallCooldown) {
+        if (isTetrominoFalling && !Move(0, 1)) {
+            StopFalling();
+        }
+        RemoveFullLines();
+        TryAddTetromino(GetRandomShape());
+        timeSinceFall = 0;
+    }
 }
 
 Tile Board::TileAt(int x, int y)
@@ -30,24 +68,32 @@ void Board::TryAddTetromino(TetrominoShape tetromino)
 {
     if (!isTetrominoFalling) {
         tetrominoColor = GetRandomColor();
-        int tetrominoHeight = tetromino.tilePositions.size();
-        int tetrominoWidth = tetromino.tilePositions[0].size();
-        int xOffset = (GetWidth() - tetrominoWidth) / 2;
+        int xOffset = (GetWidth() - tetromino.GetWidth()) / 2;
         tetrominoPosition = { xOffset, 0 };
         tetrominoShape = tetromino;
-        for (int y = 0; y < tetrominoHeight; y++) {
-            for (int x = 0; x < tetrominoWidth; x++) {
-                if (tetrominoShape.tilePositions[y][x] == 1) {
-                    if (board[y][xOffset + x].type == TileType::Frozen) {
-                        throw "You lose";
-                    }
-                    else {
-                        board[y][xOffset + x] = Tile(tetrominoColor, true);
+
+        while (tetrominoShape.GetHeight() > 0) {
+            if (CanPlaceTetromino(xOffset, 0, tetrominoShape)) {
+                for (int y = 0; y < tetrominoShape.GetHeight(); y++) {
+                    for (int x = 0; x < tetrominoShape.GetWidth(); x++) {
+                        if (tetrominoShape.tilePositions[y][x] == 1) {
+                            board[y][xOffset + x] = Tile(tetrominoColor, true);
+                        }
                     }
                 }
+                break;
             }
+            else {
+                isGameOver = true;
+            }
+            tetrominoShape.tilePositions.erase(tetrominoShape.tilePositions.begin());
         }
-        isTetrominoFalling = true;
+        if (!isGameOver) {
+            isTetrominoFalling = true;
+        }
+        else {
+            tetrominoShape = TetrominoShape::NONE;
+        }
 
     }
 
@@ -71,6 +117,14 @@ void Board::Rotate(bool left)
     }
     tetrominoShape.Rotate(!left);
     Move(0, 0);
+}
+void Board::Pause()
+{
+    isPaused = true;
+}
+void Board::Unpause()
+{
+    isPaused = false;
 }
 bool Board::Move(int xOffset = 0, int yOffset = 0)
 {
@@ -125,6 +179,7 @@ void Board::RemoveFullLines() {
             }
             if (rowFullness == GetWidth()) {
                 linesRemoved++;
+                totalLinesCleared++;
                 rowsRemovedInARow++;
                 score += 100 * rowsRemovedInARow;
             }
