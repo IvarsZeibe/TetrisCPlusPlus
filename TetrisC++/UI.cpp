@@ -1,13 +1,14 @@
 #include "UI.h"
 #include <SFML/Graphics.hpp>
-
+#include "font.h"
 
 
 
 void UI::Draw(sf::RenderWindow& window)
 {
 	sf::Font font;
-	if (!font.loadFromFile("font.ttf")) {
+	//if (!font.loadFromFile("font.ttf")) {
+	if (!font.loadFromMemory(font_ttf, font_ttf_len)) {
 		throw "font not found";
 	}
 	sf::Text scoreText;
