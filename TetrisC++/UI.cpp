@@ -17,7 +17,7 @@ void UI::Draw(sf::RenderWindow& window)
 	"\nLevel: " + std::to_string(board.GetLevel()) +
 	"\n\n\n\n\nControls" + 
 	"\nMove: A, D" +
-	"\nRotete: Q, E" +
+	"\nRotate: Q, E" +
 	"\nFaster fall: S" +
 	"\nFall: SPACE" +
 	"\nPause: P");
